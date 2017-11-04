@@ -1,15 +1,30 @@
 from django.db import models
-from mezzanine.pages.models import Page
 
-# The members of Page will be inherited by the Author model, such
-# as title, slug, etc. For authors we can use the title field to
-# store the author's name. For our model definition, we just add
-# any extra fields that aren't part of the Page model, in this
-# case, date of birth.
+COLOR_CHOICES = (
+     ('#FFFFFF', 'White'),
+     ('#C0C0C0', 'Silver'),
+     ('#808080', 'Gray'),
+     ('#000000', 'Black'),
+     ('#FF0000', 'Red'),
+     ('#800000', 'Maroon'),
+     ('#FFFF00', 'Yellow'),
+     ('#808000', 'Olive'),
+     ('#00FF00', 'Lime'),
+     ('#008000', 'Green'),
+     ('#00FFFF', 'Aqua'),
+     ('#008080', 'Teal'),
+     ('#3a87ad', 'Blue'),
+     ('#000080', 'Navy'),
+     ('#FF00FF', 'Fuchsia'),
+     ('#800080', 'Purple')
+ )
 
-class Calendar(Page):
-    dob = models.DateField("Date of birth")
+class Event(models.Model):
+    title = models.CharField(max_length=100)
+    start = models.DateTimeField()
+    end = models.DateTimeField(blank=True, null=True)
+    color = models.CharField(max_length=7, choices=COLOR_CHOICES, default='#3a87ad')
+    description = models.TextField(blank=True, default='')
 
-class Book(models.Model):
-    author = models.ForeignKey("Calendar")
-    cover = models.ImageField(upload_to="authors")
+    def __str__(self):
+        return str(self.title)

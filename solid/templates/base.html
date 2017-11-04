@@ -111,16 +111,18 @@
 {% block all_content%}
 <div class="container mtb">
 <div class="row">
-{% block left_wrapper%}
-<div class="col-md-{% block left_width %}2{% endblock %} left">
-    {% block left_panel %}
-    <div class="panel panel-default tree">{% page_menu "pages/menus/tree.html" %}</div>
-    {% endblock %}
-</div>
-{% endblock %}
+{#{% block left_wrapper%}#}
+{#<div class="col-md-{% block left_width %}2{% endblock %} left">#}
+{#    {% block left_panel %}#}
+{#    <div class="panel panel-default tree">{% page_menu "pages/menus/tree.html" %}</div>#}
+{#    {% endblock %}#}
+{#</div>#}
+{#{% endblock %}#}
 {% block main_wrapper%}
 <div class="col-md-{% block main_width %} 7 {% endblock %}middle">
-    {% block main %}{% endblock %}
+    {% block main %}
+        {% block calendar %}{% endblock %}
+    {% endblock %}
 </div>
 {% endblock %}
 {% block right_wrapper%}
@@ -141,7 +143,6 @@
 </div>
 </div>
 {% endblock %}
-
 <div id="footerwrap">
 <div class="container">
 	<div class="row">

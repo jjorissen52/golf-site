@@ -5,7 +5,10 @@ from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 
 from mezzanine.core.views import direct_to_template
+from rest_framework.routers import DefaultRouter
 
+from events import urls as event_urls
+from events.views import UpcomingEventViewSet
 
 admin.autodiscover()
 
@@ -13,9 +16,14 @@ admin.autodiscover()
 # You can also change the ``home`` view to add your own functionality
 # to the project's homepage.
 
+router = DefaultRouter()
+router.register(r'upcoming-events', UpcomingEventViewSet)
+
 urlpatterns = i18n_patterns(
     # Change the admin prefix here to use an alternate URL for the
     # admin interface, which would be marginally more secure.
+    url(r'^api/', include(router.urls)),
+    url(r"^events/", include(event_urls, namespace="events")),
     url("^admin/", include(admin.site.urls)),
 )
 

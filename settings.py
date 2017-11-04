@@ -136,6 +136,7 @@ TEMPLATES = [
          'DIRS': [
              # insert your TEMPLATE_DIRS here
              os.path.join(PROJECT_ROOT, "templates"),
+             os.path.join(PROJECT_ROOT, "events/templates"),
          ],
          'OPTIONS': {
              'context_processors': [
@@ -192,6 +193,7 @@ INSTALLED_APPS = (
     "mezzanine.pages",
     "mezzanine.galleries",
     'events',
+    'rest_framework',
     # "mezzanine.twitter",
     #"mezzanine.accounts",
     #"mezzanine.mobile",
