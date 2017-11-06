@@ -2,7 +2,7 @@
 {% load static %}
 {% block meta_title %}Upcoming Events{% endblock %}
 {% block title %}
-<h3>Upcoming Events</h3>
+<h3>{{ title_mod }} Events</h3>
 {% endblock %}
 {% block calendar %}
 <head>
@@ -19,7 +19,7 @@
 {% if events %}
 <p>
   <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-    List of Upcoming Events
+    List of {{ title_mod }} Events
   </a>
 </p>
 <div class="collapse" id="collapseExample">
@@ -94,7 +94,7 @@
 			navLinks: true, // can click day/week names to navigate views
 			eventLimit: true, // allow "more" link when too many events
 			events: {
-				url: '{% url "event-list" %}',
+				url: '{% url api_url %}',
 				error: function() {
 					$('#script-warning').show();
 				},

@@ -8,7 +8,7 @@ from mezzanine.core.views import direct_to_template
 from rest_framework.routers import DefaultRouter
 
 from events import urls as event_urls
-from events.views import UpcomingEventViewSet
+from events.views import UpcomingEventViewSet, PastEventViewSet
 
 admin.autodiscover()
 
@@ -17,14 +17,15 @@ admin.autodiscover()
 # to the project's homepage.
 
 router = DefaultRouter()
-router.register(r'upcoming-events', UpcomingEventViewSet)
+router.register(r'upcoming-events', UpcomingEventViewSet, base_name='upcoming')
+router.register(r'past-events', PastEventViewSet, base_name='past')
 
 urlpatterns = i18n_patterns(
     # Change the admin prefix here to use an alternate URL for the
     # admin interface, which would be marginally more secure.
     url(r'^api/', include(router.urls)),
-    url(r"^events/", include(event_urls, namespace="events")),
-    url("^admin/", include(admin.site.urls)),
+    url(r'^events/', include(event_urls, namespace="events")),
+    url('^admin/', include(admin.site.urls)),
 )
 
 urlpatterns += [
