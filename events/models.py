@@ -26,5 +26,8 @@ class Event(models.Model):
     color = models.CharField(max_length=7, choices=COLOR_CHOICES, default='#3a87ad')
     description = models.TextField(blank=True, default='')
 
+    def test(self):
+        return 'ok'
+
     def __str__(self):
         return str(self.title)
