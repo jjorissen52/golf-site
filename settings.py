@@ -1,4 +1,8 @@
 from __future__ import absolute_import, unicode_literals
+import os, configparser, socket
+
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+PROJECT_DIRNAME = PROJECT_ROOT.split(os.sep)[-1]
 
 ######################
 # MEZZANINE SETTINGS #
@@ -77,8 +81,11 @@ from __future__ import absolute_import, unicode_literals
 
 # If True, the south application will be automatically added to the
 # INSTALLED_APPS setting.
+
+config = configparser.ConfigParser()
+config.read(os.path.join(PROJECT_ROOT, 'secrets.conf'))
 USE_SOUTH = True
-SECRET_KEY = 12
+SECRET_KEY = config.get('golf_site', 'secret_key')
 
 ########################
 # MAIN DJANGO SETTINGS #
@@ -113,22 +120,8 @@ INTERNAL_IPS = ("127.0.0.1",)
 AUTHENTICATION_BACKENDS = ("mezzanine.core.auth_backends.MezzanineBackend",)
 FILE_UPLOAD_PERMISSIONS = 0o644
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "golf.db",
-    }
-}
-
-import os
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-PROJECT_DIRNAME = PROJECT_ROOT.split(os.sep)[-1]
 
 CACHE_MIDDLEWARE_KEY_PREFIX = PROJECT_DIRNAME
-STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(PROJECT_ROOT, STATIC_URL.strip("/"))
-MEDIA_URL = STATIC_URL + "media/"
-MEDIA_ROOT = os.path.join(PROJECT_ROOT, *MEDIA_URL.strip("/").split("/"))
 ROOT_URLCONF = "%s.urls" % PROJECT_DIRNAME
 TEMPLATES = [
      {
@@ -270,3 +263,49 @@ except ImportError:
     pass
 else:
     set_dynamic_settings(globals())
+
+
+try:
+    HOSTNAME = socket.gethostname()
+except:
+    HOSTNAME = 'localhost'
+
+
+
+if config.get('local', 'host_name') in HOSTNAME:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": "golf.db",
+        }
+    }
+    STATIC_URL = '/static/'
+
+else:
+    ############# DATABASE DEFINITIONS ################
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'OPTIONS': {
+                'options': f'-c search_path={SCHEMA}'
+            },
+            'NAME': config.get('lambda', 'db_name'),
+            'USER': config.get('lambda', 'db_user'),
+            'PASSWORD': config.get('lambda', 'db_password'),
+            'HOST': config.get('lambda', 'db_host'),
+            'PORT': '5432',
+        }
+    }
+
+############### FILE STORAGE CONFIG ###################
+STATICFILES_DIRS = [os.path.join(PROJECT_ROOT, 'static/'), os.path.join(PROJECT_ROOT, 'solid/static/')]
+AWS_LOCATION = 'content'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_S3_HOST = "s3.us-east-1.amazonaws.com"
+AWS_STORAGE_BUCKET_NAME = config.get('corrdyn', 'storage_bucket_name')
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+STATIC_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
+STATIC_ROOT = os.path.join(PROJECT_ROOT, STATIC_URL.strip("/"))
+MEDIA_URL = STATIC_URL + "media/"
+MEDIA_ROOT = os.path.join(PROJECT_ROOT, *MEDIA_URL.strip("/").split("/"))
+#####################################################
