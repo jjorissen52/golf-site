@@ -1,7 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 import os, configparser, socket
 
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_DIRNAME = PROJECT_ROOT.split(os.sep)[-1]
 
 ######################
@@ -85,7 +85,7 @@ PROJECT_DIRNAME = PROJECT_ROOT.split(os.sep)[-1]
 config = configparser.ConfigParser()
 config.read(os.path.join(PROJECT_ROOT, 'secrets.conf'))
 USE_SOUTH = True
-SECRET_KEY = config.get('golf_site', 'secret_key')
+SECRET_KEY = config.get('django', 'secret_key')
 
 ########################
 # MAIN DJANGO SETTINGS #
@@ -95,7 +95,7 @@ SECRET_KEY = config.get('golf_site', 'secret_key')
 # In the format (('Full Name', 'email@example.com'),
 #                ('Full Name', 'anotheremail@example.com'))
 ADMINS = (
-    ('John-Paul Jorissen', 'jjorissen52@gmail.com'),
+    (config.get('golf_site', 'admin_name'), config.get('golf_site', 'admin_email')),
 )
 MANAGERS = ADMINS
 ALLOWED_HOSTS = ["*"]
@@ -129,7 +129,7 @@ TEMPLATES = [
          'DIRS': [
              # insert your TEMPLATE_DIRS here
              os.path.join(PROJECT_ROOT, "templates"),
-             os.path.join(PROJECT_ROOT, "events/templates"),
+             os.path.join(PROJECT_ROOT, "events/../events/templates"),
          ],
          'OPTIONS': {
              'context_processors': [
@@ -137,7 +137,7 @@ TEMPLATES = [
                  # list if you haven't customized them:
                  'django.contrib.auth.context_processors.auth',
                  'django.template.context_processors.debug',
-                 'django.template.context_processors.i18n',
+                 # 'django.template.context_processors.i18n',
                  'django.template.context_processors.media',
                  'django.template.context_processors.request',
                  'django.template.context_processors.static',
@@ -187,6 +187,8 @@ INSTALLED_APPS = (
     "mezzanine.galleries",
     'events',
     'rest_framework',
+    'storages',
+    "compressor",
     # "mezzanine.twitter",
     #"mezzanine.accounts",
     #"mezzanine.mobile",
@@ -233,18 +235,58 @@ OPTIONAL_APPS = (
     PACKAGE_NAME_GRAPPELLI,
 )
 
-##################
-# LOCAL SETTINGS #
-##################
 
-# Allow any settings to be defined in local_settings.py which should be
-# ignored in your version control system allowing for settings to be
-# defined per machine.
 try:
-    from local_settings import *
-except ImportError as e:
-    if "local_settings" not in str(e):
-        raise e
+    HOSTNAME = socket.gethostname()
+except:
+    HOSTNAME = 'localhost'
+
+print(os.path.join(PROJECT_ROOT, "golf.db"))
+
+if config.get('local', 'host_name') in HOSTNAME:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.path.join(PROJECT_ROOT, "golf.db"),
+        }
+    }
+    STATIC_URL = '/static/'
+
+else:
+    ############# DATABASE DEFINITIONS ################
+    SCHEMA = config.get('golf_site', 'db_schema')
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'OPTIONS': {
+                'options': f'-c search_path={SCHEMA}'
+            },
+            'NAME': config.get('lambda', 'db_name'),
+            'USER': config.get('lambda', 'db_user'),
+            'PASSWORD': config.get('lambda', 'db_password'),
+            'HOST': config.get('lambda', 'db_host'),
+            'PORT': '5432',
+        }
+    }
+
+############### FILE STORAGE CONFIG ###################
+STATICFILES_DIRS = [os.path.join(PROJECT_ROOT, '../static/'), os.path.join(PROJECT_ROOT, 'solid/../solid/static/')]
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static_root/')
+COMPRESS_ROOT = STATIC_ROOT
+AWS_LOCATION = 'content'
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_S3_HOST = "s3.us-east-1.amazonaws.com"
+AWS_STORAGE_BUCKET_NAME = config.get('golf_site', 'storage_bucket_name')
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+STATICFILES_LOCATION = 'static'
+STATIC_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, STATICFILES_LOCATION)
+ADMIN_MEDIA_PREFIX = STATIC_URL + 'grappelli/'
+MEDIAFILES_LOCATION = 'media'
+MEDIA_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, MEDIAFILES_LOCATION)
+STATICFILES_STORAGE = 'custom_storages.StaticStorage'
+DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
+#####################################################
+
 
 
 ####################
@@ -263,49 +305,3 @@ except ImportError:
     pass
 else:
     set_dynamic_settings(globals())
-
-
-try:
-    HOSTNAME = socket.gethostname()
-except:
-    HOSTNAME = 'localhost'
-
-
-
-if config.get('local', 'host_name') in HOSTNAME:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": "golf.db",
-        }
-    }
-    STATIC_URL = '/static/'
-
-else:
-    ############# DATABASE DEFINITIONS ################
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'OPTIONS': {
-                'options': f'-c search_path={SCHEMA}'
-            },
-            'NAME': config.get('lambda', 'db_name'),
-            'USER': config.get('lambda', 'db_user'),
-            'PASSWORD': config.get('lambda', 'db_password'),
-            'HOST': config.get('lambda', 'db_host'),
-            'PORT': '5432',
-        }
-    }
-
-############### FILE STORAGE CONFIG ###################
-STATICFILES_DIRS = [os.path.join(PROJECT_ROOT, 'static/'), os.path.join(PROJECT_ROOT, 'solid/static/')]
-AWS_LOCATION = 'content'
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-AWS_S3_HOST = "s3.us-east-1.amazonaws.com"
-AWS_STORAGE_BUCKET_NAME = config.get('corrdyn', 'storage_bucket_name')
-AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
-STATIC_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
-STATIC_ROOT = os.path.join(PROJECT_ROOT, STATIC_URL.strip("/"))
-MEDIA_URL = STATIC_URL + "media/"
-MEDIA_ROOT = os.path.join(PROJECT_ROOT, *MEDIA_URL.strip("/").split("/"))
-#####################################################

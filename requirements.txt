@@ -4,7 +4,9 @@ certifi==2017.7.27.1
 chardet==3.0.4
 Django==1.10.8
 django-contrib-comments==1.8.0
-django-storages==1.6.5
+#django-storages==1.6.5
+django-storages-redux
+psycopg2
 filebrowser-safe==0.4.7
 future==0.16.0
 grappelli-safe==0.4.7
@@ -21,3 +23,7 @@ six==1.11.0
 tzlocal==1.4
 urllib3==1.22
 webencodings==0.5.1
+zappa
+django-compressor
+boto
+djangorestframework==3.7.3
