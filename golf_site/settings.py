@@ -3,7 +3,7 @@ import os, configparser, socket
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_DIRNAME = PROJECT_ROOT.split(os.sep)[-1]
-
+BASE_DIR = PROJECT_ROOT
 ######################
 # MEZZANINE SETTINGS #
 ######################
@@ -103,11 +103,11 @@ USE_TZ = True
 
 LANGUAGE_CODE = "en"
 
-# Supported languages
-_ = lambda s: s
-LANGUAGES = (
-    ('en', _('English')),
-)
+# # Supported languages
+# _ = lambda s: s
+# LANGUAGES = (
+#     ('en', _('English')),
+# )
 
 DEBUG = True
 
@@ -122,14 +122,14 @@ FILE_UPLOAD_PERMISSIONS = 0o644
 
 
 CACHE_MIDDLEWARE_KEY_PREFIX = PROJECT_DIRNAME
-ROOT_URLCONF = "%s.urls" % PROJECT_DIRNAME
+ROOT_URLCONF = "golf_site.urls"
 TEMPLATES = [
      {
          'BACKEND': 'django.template.backends.django.DjangoTemplates',
          'DIRS': [
              # insert your TEMPLATE_DIRS here
              os.path.join(PROJECT_ROOT, "templates"),
-             os.path.join(PROJECT_ROOT, "events/../events/templates"),
+             os.path.join(PROJECT_ROOT, "events/templates"),
          ],
          'OPTIONS': {
              'context_processors': [
@@ -137,7 +137,7 @@ TEMPLATES = [
                  # list if you haven't customized them:
                  'django.contrib.auth.context_processors.auth',
                  'django.template.context_processors.debug',
-                 # 'django.template.context_processors.i18n',
+                 'django.template.context_processors.i18n',
                  'django.template.context_processors.media',
                  'django.template.context_processors.request',
                  'django.template.context_processors.static',
@@ -188,10 +188,8 @@ INSTALLED_APPS = (
     'events',
     'rest_framework',
     'storages',
-    "compressor",
-    # "mezzanine.twitter",
-    #"mezzanine.accounts",
-    #"mezzanine.mobile",
+    # "compressor",
+    'zappa_django_utils',
 )
 
 # List of middleware classes to use. Order is important; in the request phase,
@@ -230,7 +228,7 @@ PACKAGE_NAME_GRAPPELLI = "grappelli_safe"
 OPTIONAL_APPS = (
     "debug_toolbar",
     "django_extensions",
-    "compressor",
+    # "compressor",
     PACKAGE_NAME_FILEBROWSER,
     PACKAGE_NAME_GRAPPELLI,
 )
@@ -241,7 +239,7 @@ try:
 except:
     HOSTNAME = 'localhost'
 
-print(os.path.join(PROJECT_ROOT, "golf.db"))
+STATIC_URL = '/static/'
 
 if config.get('local', 'host_name') in HOSTNAME:
     DATABASES = {
@@ -250,7 +248,6 @@ if config.get('local', 'host_name') in HOSTNAME:
             "NAME": os.path.join(PROJECT_ROOT, "golf.db"),
         }
     }
-    STATIC_URL = '/static/'
 
 else:
     ############# DATABASE DEFINITIONS ################
@@ -270,7 +267,7 @@ else:
     }
 
 ############### FILE STORAGE CONFIG ###################
-STATICFILES_DIRS = [os.path.join(PROJECT_ROOT, '../static/'), os.path.join(PROJECT_ROOT, 'solid/../solid/static/')]
+STATICFILES_DIRS = [os.path.join(PROJECT_ROOT, 'golf_site/static'), os.path.join(PROJECT_ROOT, 'solid/solid/static')]
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static_root/')
 COMPRESS_ROOT = STATIC_ROOT
 AWS_LOCATION = 'content'
@@ -283,7 +280,9 @@ STATIC_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, STATICFILES_LOCATION)
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'grappelli/'
 MEDIAFILES_LOCATION = 'media'
 MEDIA_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, MEDIAFILES_LOCATION)
+MEDIA_ROOT = ''
 STATICFILES_STORAGE = 'custom_storages.StaticStorage'
+# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
 #####################################################
 
