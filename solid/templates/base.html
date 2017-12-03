@@ -70,8 +70,20 @@
         <span class="icon-bar"></span>
     </button>
     {% if settings.SITE_TITLE %}<a class="navbar-brand" href="/">{{ settings.SITE_TITLE }}</a>{% endif %}
+{#    {% if settings.SITE_TITLE %}<a class="navbar-brand" href="{% url "home" %}"><img src="{% static "images/RedLogo.png" %}" alt="AVID LOGO"></a>{% endif %}#}
     {% if settings.SITE_TAGLINE %}<p class="navbar-text visible-lg">{{ settings.SITE_TAGLINE }}</p>{% endif %}
 </div>
+{#<style>#}
+{#    .navbar-brand {#}
+{#        padding: 0px;#}
+{#    }#}
+{#    .navbar-brand>img {#}
+{#      height: 100%;#}
+{#      padding: 15px;#}
+{#      width: auto;#}
+{#      min-height:100px;#}
+{#    }#}
+{#</style>#}
 <div class="navbar-collapse collapse navbar-right">
     
     {% page_menu "pages/menus/superfish.html" %}
@@ -80,12 +92,26 @@
 </div>
 {% block title_wrapper%}
 <div id="blue" style="padding-bottom: 0; margin-bottom: 0;">
-	    <div class="container">
-			<div class="row">
-				<h3>{% block title %}{% endblock %}</h3>
-			</div><!-- /row -->
-	    </div> <!-- /container -->
-	</div>
+    <div class="container paragraphs">
+{#        <div class="row">#}
+{#            <div class="content-heading"><h3>{% block title %}{% endblock %}</h3></div>#}
+{#        </div><!-- /row -->#}
+          <div class="row">
+                <div class="span4">
+                  <img src="{% static "images/BaseLogo.png" %}" alt="AVID LOGO" id="logo" style="float: left; height: 150px;">
+                  <div class="content-heading"><h3 style="transform: translateY(350%); ">{% block title %}{% endblock %}</h3></div>
+                </div>
+          </div>
+    </div> <!-- /container -->
+</div>
+<style>
+#logo {
+  padding: 15px;
+  padding-top: 0;
+  width: auto;
+  height:150px;
+}
+</style>
 {% endblock %}
 <div class="container">
 
