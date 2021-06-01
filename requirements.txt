@@ -21,7 +21,7 @@ requests==2.18.4
 requests-oauthlib==0.8.0
 six==1.11.0
 tzlocal==1.4
-urllib3==1.22
+urllib3==1.26.5
 webencodings==0.5.1
 zappa==0.44.3
 zappa-django-utils==0.3.1
